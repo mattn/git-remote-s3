@@ -3,7 +3,7 @@ package main
 import gits3 "github.com/mattn/git-remote-s3"
 
 const name = "git-remote-s3"
-const version = "0.0.0"
+const version = "0.0.1"
 
 var revision = "HEAD"
 
