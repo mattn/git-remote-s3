@@ -80,6 +80,38 @@ The helper stores:
 - `s3://.../snapshots/<timestamp>-<commit>.bundle` -- timestamped full bundle
 - `s3://.../latest.json` -- pointer to the current snapshot
 
+## FAQ
+
+### How do I specify a profile on `git clone`?
+
+`git config remote.origin.s3-profile` only works after clone. For the initial clone, use the `AWS_PROFILE` environment variable:
+
+```bash
+# Linux / macOS
+AWS_PROFILE=oci git clone s3://my-bucket/my-repo
+
+# Windows (cmd)
+set AWS_PROFILE=oci
+git clone s3://my-bucket/my-repo
+```
+
+The profile is automatically saved to `remote.origin.s3-profile` on first use, so subsequent operations work without the environment variable.
+
+### I get "Invalid region" or "region was not a valid DNS name"
+
+If your `~/.aws/credentials` does not include a `region`, set it via environment variable:
+
+```bash
+# Linux / macOS
+AWS_REGION=us-east-1 git clone s3://my-bucket/my-repo
+
+# Windows (cmd)
+set AWS_REGION=us-east-1
+git clone s3://my-bucket/my-repo
+```
+
+The actual region value does not matter when using a custom endpoint.
+
 ## Notes
 
 - This implementation stores full snapshot bundles, not incremental packfile deltas.

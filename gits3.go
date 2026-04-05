@@ -135,14 +135,22 @@ func runRemoteHelper(name, rawURL string) error {
 
 	ctx := context.Background()
 	configPrefix := "remote." + remoteName
+	profile := gitConfigValue(configPrefix + ".s3-profile")
+	if profile == "" {
+		if envProfile := os.Getenv("AWS_PROFILE"); envProfile != "" {
+			profile = envProfile
+			// Persist so subsequent operations don't need the env var.
+			_ = exec.Command("git", "config", configPrefix+".s3-profile", profile).Run()
+		}
+	}
 	var pathStyle *bool
 	if v := gitConfigValue(configPrefix + ".s3-path-style"); v != "" {
 		b := v == "true"
 		pathStyle = &b
 	}
 	client, err := newS3Client(ctx, s3ClientOptions{
-		Profile:   gitConfigValue(configPrefix + ".s3-profile"),
-		Endpoint:  gitConfigValue(configPrefix + ".s3-endpoint"),
+		Profile:  profile,
+		Endpoint: gitConfigValue(configPrefix + ".s3-endpoint"),
 		PathStyle: pathStyle,
 	})
 	if err != nil {
