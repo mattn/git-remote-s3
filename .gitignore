@@ -1,0 +1,15 @@
+# Binaries
+/git-remote-s3
+/git-remote-s3.exe
+
+# IDE / editor
+.codex
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
