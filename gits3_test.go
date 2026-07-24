@@ -6,16 +6,20 @@ func TestParseStorageURL(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		raw    string
-		bucket string
-		prefix string
-		ok     bool
+		raw     string
+		profile string
+		bucket  string
+		prefix  string
+		ok      bool
 	}{
 		{raw: "s3://bucket", bucket: "bucket", prefix: "", ok: true},
 		{raw: "s3://bucket/path/to/repo", bucket: "bucket", prefix: "path/to/repo", ok: true},
 		{raw: "s3://bucket/path/to/repo/", bucket: "bucket", prefix: "path/to/repo", ok: true},
+		{raw: "s3://work@bucket/repo", profile: "work", bucket: "bucket", prefix: "repo", ok: true},
+		{raw: "s3://work@bucket", profile: "work", bucket: "bucket", prefix: "", ok: true},
 		{raw: "https://bucket/path", ok: false},
 		{raw: "s3:///path", ok: false},
+		{raw: "s3://work@/repo", ok: false},
 	}
 
 	for _, tt := range tests {
@@ -32,7 +36,7 @@ func TestParseStorageURL(t *testing.T) {
 				}
 				return
 			}
-			if got.Bucket != tt.bucket || got.Prefix != tt.prefix {
+			if got.Profile != tt.profile || got.Bucket != tt.bucket || got.Prefix != tt.prefix {
 				t.Fatalf("got %+v", got)
 			}
 		})

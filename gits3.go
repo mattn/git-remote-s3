@@ -30,8 +30,9 @@ var (
 )
 
 type storageURL struct {
-	Bucket string
-	Prefix string
+	Profile string
+	Bucket  string
+	Prefix  string
 }
 
 type snapshot struct {
@@ -135,7 +136,10 @@ func runRemoteHelper(name, rawURL string) error {
 
 	ctx := context.Background()
 	configPrefix := "remote." + remoteName
-	profile := gitConfigValue(configPrefix + ".s3-profile")
+	profile := target.Profile
+	if profile == "" {
+		profile = gitConfigValue(configPrefix + ".s3-profile")
+	}
 	if profile == "" {
 		if envProfile := os.Getenv("AWS_PROFILE"); envProfile != "" {
 			profile = envProfile
@@ -637,6 +641,11 @@ func parseStorageURL(raw string) (storageURL, error) {
 	}
 	trimmed := strings.TrimPrefix(raw, "s3://")
 	parts := strings.SplitN(trimmed, "/", 2)
+	profile := ""
+	if i := strings.Index(parts[0], "@"); i >= 0 {
+		profile = parts[0][:i]
+		parts[0] = parts[0][i+1:]
+	}
 	if parts[0] == "" {
 		return storageURL{}, fmt.Errorf("missing bucket in %q", raw)
 	}
@@ -644,7 +653,7 @@ func parseStorageURL(raw string) (storageURL, error) {
 	if len(parts) == 2 {
 		prefix = strings.Trim(parts[1], "/")
 	}
-	return storageURL{Bucket: parts[0], Prefix: prefix}, nil
+	return storageURL{Profile: profile, Bucket: parts[0], Prefix: prefix}, nil
 }
 
 func sanitizeRemoteName(name string) string {
